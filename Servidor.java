@@ -8,7 +8,7 @@ public class Servidor{
             ServerSocket s = new ServerSocket(9000);
             s.setReuseAddress(true);
             System.out.println("Servicio iniciado, esperando clientes");
-            
+            for(;;){
             //Conexion con cliente
             Socket cl = s.accept();
             System.out.println("Cliente conectado desde:"+cl.getInetAddress()+":"+cl.getPort());
@@ -29,15 +29,15 @@ public class Servidor{
                 //Envio nombres
                 for (int x = 0; x < carpetas.length; x++){
                     System.out.println(carpetas[x].getName());
-                    DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
-                    dos.writeUTF(carpetas[x].getName());
-                    dos.flush();
+                    //DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
+                    numero.println(carpetas[x].getName());
+                    numero.flush();
                    
                 }
             }else{ 
                 System.out.println("No existe la carpeta :(");
             }
-            
+        }
             
             
             /*
