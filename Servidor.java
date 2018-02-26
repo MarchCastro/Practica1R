@@ -1,7 +1,10 @@
 import java.net.*;
 import java.io.*;
+import java.util.*;
 
 public class Servidor{
+    static ArrayList<String> corto = new ArrayList<String>();
+    static ArrayList<String> path_ar = new ArrayList<String>();
     public static void main(String[] args) {
 
         try{
@@ -16,58 +19,72 @@ public class Servidor{
             BufferedReader br3 = new BufferedReader(new InputStreamReader(cl.getInputStream()));
             String path = "";
             path = br3.readLine();
+            int tam = path.length();
             System.out.println("\n La direccion es: " + path);
-           
-            File f = new File(path);
-            System.out.println("\n File " + f);
-            if(f.exists()){ 
-                File[] carpetas = f.listFiles();
-                //Envio numero de archivos
-                PrintWriter numero = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
-                numero.println(carpetas.length);
-                numero.flush();
-                //Envio nombres
-                for (int x = 0; x < carpetas.length; x++){
-                    System.out.println(carpetas[x].getName());
-                    //DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
-                    numero.println(carpetas[x].getName());
-                    numero.flush();
-                   
-                }
-            }else{ 
-                System.out.println("No existe la carpeta :(");
-            }
-        }
-            
-            
-            /*
-            for(;;){
-                Socket cl = s.accept();
-                DataIputStream dis = new DataInputStream(cl.getInputStream());
-                String nombre = dis.readUTF();
-                long tam = dis.readLong();
-                System.out.println("Inicia recepción del archivo: " + nombre + " de tamaño " + tam + " desde " + cl.getInetAddress() + ":" + cl.getPort());
-                DataOutputStream dos = new DataOutputStream(new FileOutputStream(nombre));
-                long recibidos = 0;
-                int n,porcentaje = 0;
-                
-                while(recibidos < tam){
-                    byte [] b = new byte[1500];
-                    n = dis.read(b);
-                    recibidos += n;
-                    dos.write(b,0,n);
-                    dos.flush();
-                    porcentaje = (int)((recibidos * 100)/tam);
-                    System.out.println("\r Recibido el " + porcentaje + "% del archivo");
-                }
-
-                System.out.println("Archivo recibido");
-                dos.close();
-                dis.close();
-                cl.close();
-            }*/
+                buscaArchivo(path,cl);
+                enviaRutas(cl,tam);
+            }       
         }catch(Exception e){
             e.printStackTrace();
         }
     }
+
+        public static void buscaArchivo(String path, Socket cl){
+            try{
+                //int tam_path = tam;
+                File f = new File(path);
+
+                if(f.exists()){ 
+                    //Guarda en cada posicion un archivo
+                    File[] carpetas = f.listFiles();
+                    //Envio nombres
+                    int i = 0;
+
+                    for (int x = 0; x < carpetas.length; x++){
+                        if (carpetas[x].isDirectory()){
+                            path_ar.add(carpetas[x].getPath());
+                            //System.out.println(carpetas[x].getName());
+                            String path1 = carpetas[x].getPath();
+                            buscaArchivo(path1, cl);                        
+                        }                  
+                        else{
+                            //System.out.println(carpetas[x].getName());
+                            String concatena = path + "/" + carpetas[x].getName();
+                            path_ar.add(x,concatena);
+                            
+                        }               
+                    } 
+                    
+                }else{ 
+                    System.out.println("No existe la carpeta :(");
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        public static void enviaRutas(Socket cl, int tam){
+            try{
+                int tam_path = tam;
+                for(int d = 0; d < path_ar.size(); d++){
+                    //Acorto nombre
+                    corto.add(path_ar.get(d).substring(tam_path+1, path_ar.get(d).length()));                       
+                }
+                //Envio nombres
+                PrintWriter numero = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
+                System.out.println("Tam corto: " + corto.size());
+                numero.println(corto.size());
+                numero.flush();
+                //Envia rutas
+                
+                for(int d = 0; d < corto.size(); d++){
+                    System.out.println("Nombre corto: " + corto.get(d));                    
+                    numero.println(corto.get(d));
+                    numero.flush();
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
 }

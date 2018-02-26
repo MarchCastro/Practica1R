@@ -49,7 +49,7 @@ public class Cliente{
             String path = br1.readLine();
 
             Socket cl = new Socket(dir, pto);
-            //Envio opcion elegida por usuario
+            //Envio path
             PrintWriter opc = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
             opc.println(path);
             opc.flush();
@@ -61,11 +61,14 @@ public class Cliente{
             int numero1 = Integer.parseInt(numero);
             System.out.println("\n Hay: " + numero1);
 
+            
+            String nombre = "";
             for(int i = 0; i < numero1; i++){
-                DataInputStream dis = new DataInputStream(cl.getInputStream());
-                String nombre = dis.readUTF();
-                System.out.println("Inicia recepción del archivo: " + nombre );
+                nombre = br3.readLine();
+                System.out.println("Archivo: " + nombre );
             }
+
+            
             
             /*
             System.out.print("\n Estableciendo la conexión con el servidor");
