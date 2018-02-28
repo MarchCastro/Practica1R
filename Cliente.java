@@ -68,6 +68,12 @@ public class Cliente{
                 System.out.println(nombre);
             }
 
+            //Envio path
+            System.out.println("Enviando numero" );
+            int num = 2;
+            //PrintWriter opc = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
+            opc.println(num);
+            opc.flush();
             
             
             /*

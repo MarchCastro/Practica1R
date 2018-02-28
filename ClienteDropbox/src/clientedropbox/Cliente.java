@@ -58,6 +58,7 @@ public class Cliente extends javax.swing.JFrame {
             int n = 0;
             byte[] b = new byte[1500];
             dos = new DataOutputStream(cl.getOutputStream());
+            dis = new DataInputStream(new FileInputStream(f.getAbsolutePath()));
             dos.writeUTF(nombre);
             dos.flush();
             dos.writeLong(tam);
@@ -356,7 +357,7 @@ public class Cliente extends javax.swing.JFrame {
 
     private String getRutaRelativa(File f) {
         String r = f.getAbsolutePath();
-        return r.substring(ruta.length()-1);
+        return r.substring(ruta.length());
     }
 
     private boolean estaEn(String rutaRelativa, String[] rutasServidor) {
