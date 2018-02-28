@@ -29,35 +29,34 @@ public class Servidor{
             numero = br3.readLine();
             int numero1 = Integer.parseInt(numero);
             System.out.println("\n Recibiré: " + numero1);
-            DataInputStream dis = null;
-            String nombre = "";
-
-            for(int i = 0; i < numero1; i++){
-                //System.out.println("\n Recibiré: " + numero1);
-                dis = new DataInputStream(cl.getInputStream());
-                String nombre1 = dis.readUTF();
-                long tam1 = dis.readLong();
-                System.out.println("Inicia recepción del archivo: " + nombre1 + " de tamaño " + tam1 + " desde " + cl.getInetAddress() + ":" + cl.getPort());
-                DataOutputStream dos = new DataOutputStream(new FileOutputStream(nombre));
-                long recibidos = 0;
-                int n,porcentaje = 0;
-                
-                while(recibidos < tam){
-                    byte [] b = new byte[1500];
-                    n = dis.read(b);
-                    recibidos += n;
-                    dos.write(b,0,n);
-                    dos.flush();
-                    porcentaje = (int)((recibidos * 100)/tam);
-                    System.out.println("\r Recibido el " + porcentaje + "% del archivo");
-                }
-    
-                System.out.println("Archivo recibido");
+            
+            while(true){
+                 //System.out.println("\n Recibiré: " + numero1);
+                 DataInputStream dis = new DataInputStream(cl.getInputStream());
+                 String nombre1 = dis.readUTF();
+                 long tam1 = dis.readLong();
+                 System.out.println("Inicia recepción del archivo: " + nombre1 + " de tamaño " + tam1 + " desde " + cl.getInetAddress() + ":" + cl.getPort());
+                 
+                 DataOutputStream dos = new DataOutputStream(new FileOutputStream(nombre1));
+                 long recibidos = 0;
+                 int n,porcentaje = 0;
+                 
+                 while(recibidos < tam1){
+                     byte [] b = new byte[1500];
+                     n = dis.read(b);
+                     recibidos += n;
+                     dos.write(b,0,n);
+                     dos.flush();
+                     porcentaje = (int)((recibidos * 100)/tam1);
+                     System.out.println("\r Recibido el " + porcentaje + "% del archivo");
+                 }
+     
+                 System.out.println("Archivo recibido");
+                 //dos.close();
+                 //dis.close();
             }
-
-        }
-
-                  
+               
+            }
         }catch(Exception e){
             e.printStackTrace();
         }
