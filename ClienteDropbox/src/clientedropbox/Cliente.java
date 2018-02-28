@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.Stack;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
@@ -46,6 +47,34 @@ public class Cliente extends javax.swing.JFrame {
     private String archivoActual = "";
     private JFileChooser jfc;
     private String ruta;
+    
+    private void enviaArchivo(File f){
+        try {
+            String nombre = f.getName();
+            long tam = f.length();
+            System.out.println("Iniciando el envío del archivo " + nombre + "\n\n");
+            long enviados = 0;
+            int porcentaje = 0;
+            int n = 0;
+            byte[] b = new byte[1500];
+            dos = new DataOutputStream(cl.getOutputStream());
+            dos.writeUTF(nombre);
+            dos.flush();
+            dos.writeLong(tam);
+            dos.flush();
+            while(enviados < tam){
+                n = dis.read(b);
+                dos.write(b,0,n);
+                enviados += n;
+                porcentaje = (int) ((enviados * 100) / tam);
+                System.out.print("\rSe ha enviado el " + porcentaje + "% del archivo");
+            }
+            System.out.println("\nSe ha completado el envío");
+            dos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     private String getCarpetaActual(String path, DefaultMutableTreeNode node){
         carpetaActual = "\\";
@@ -143,8 +172,13 @@ public class Cliente extends javax.swing.JFrame {
         jLabel2.setText("Carpeta actual: " + path);
         CreateChildNodes ccn = new CreateChildNodes(fileRoot, root);
         new Thread(ccn).start();
-        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
-        dtm.reload();
+        int archivosEnServidor = Integer.parseInt(br.readLine());
+        System.out.println("Hay " + archivosEnServidor + " archivos en servidor");
+        String[] rutasServidor = new String[archivosEnServidor];
+        for(int i = 0; i < archivosEnServidor; i++){
+            rutasServidor[i] = br.readLine();
+        }
+        actualizaCarpeta(rutasServidor);
     }
 
     
@@ -293,5 +327,43 @@ public class Cliente extends javax.swing.JFrame {
                 vaciaCarpeta(fi);
             fi.delete();
         }
+    }
+
+    private void actualizaCarpeta(String[] rutasServidor) {
+        File[] locales = new File(ruta).listFiles();
+        if(rutasServidor.length < 1){ 
+            pw.println(locales.length);
+            pw.flush();
+            for (File f : locales){
+                pw.println(getRutaRelativa(f));
+                pw.flush();
+                enviaArchivo(f);
+            }
+        }else{
+            LinkedList<String> aEnviar = new LinkedList<>();
+            for(File f: locales){
+                if(!estaEn(getRutaRelativa(f), rutasServidor))
+                    aEnviar.add(getRutaRelativa(f));
+            }
+            pw.print(aEnviar.size());
+            pw.flush();
+            for (String aE : aEnviar) {
+                File f = new File(ruta + "\\" + aE);
+                enviaArchivo(f);
+            }
+        }
+    }
+
+    private String getRutaRelativa(File f) {
+        String r = f.getAbsolutePath();
+        return r.substring(ruta.length()-1);
+    }
+
+    private boolean estaEn(String rutaRelativa, String[] rutasServidor) {
+        for(String r : rutasServidor){
+            if(r.equals(rutaRelativa))
+                return true;
+        }
+        return false;
     }
 }

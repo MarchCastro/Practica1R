@@ -18,11 +18,13 @@ public class Servidor{
                 
             BufferedReader br3 = new BufferedReader(new InputStreamReader(cl.getInputStream()));
             String path = "";
-            path = br3.readLine();
+            path = "Sincronizada";
             int tam = path.length();
             System.out.println("\n La direccion es: " + path);
                 buscaArchivo(path,cl);
                 enviaRutas(cl,tam);
+                corto.clear();
+                path_ar.clear();
             }       
         }catch(Exception e){
             e.printStackTrace();
@@ -49,7 +51,7 @@ public class Servidor{
                         }                  
                         else{
                             //System.out.println(carpetas[x].getName());
-                            String concatena = path + "/" + carpetas[x].getName();
+                            String concatena = path + "\\" + carpetas[x].getName();
                             path_ar.add(x,concatena);
                             
                         }               
