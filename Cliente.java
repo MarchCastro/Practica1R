@@ -6,7 +6,7 @@ import javax.swing.plaf.FileChooserUI;
 public class Cliente{
     static JFileChooser jf;
 
-    /*public static void Envia_datos(File f, Socket cl){
+    public static void Envia_datos(File f, Socket cl){
         try{
             //DataOutputStream dos = null;
             //DataInputStream dis = null;
@@ -37,16 +37,16 @@ public class Cliente{
         }catch(Exception e){
             e.printStackTrace();
         }
-    }*/
+    }
 
     public static void main(String [] args){
         try{
             int pto = 9000;
             BufferedReader br1 = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("\n Escribe la dirección del servidor: ");
-            String dir = br1.readLine();
-            System.out.print("\n Escribe la dirección de la carpeta: ");
-            String path = br1.readLine();
+            //System.out.print("\n Escribe la dirección del servidor: ");
+            String dir = "127.0.0.1";
+            //System.out.print("\n Escribe la dirección de la carpeta: ");
+            String path = "/home/march/Music";
 
             Socket cl = new Socket(dir, pto);
             //Envio path
@@ -68,36 +68,27 @@ public class Cliente{
                 System.out.println(nombre);
             }
 
-            //Envio path
-            System.out.println("Enviando numero" );
-            int num = 2;
-            //PrintWriter opc = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
-            opc.println(num);
-            opc.flush();
             
-            
-            /*
-            System.out.print("\n Estableciendo la conexión con el servidor");
-            System.out.print("\n Conexión establecida");
-
+            //Envia archivos          
             jf = new JFileChooser();
             jf.setMultiSelectionEnabled(true);
             
             int r = jf.showOpenDialog(null);
             int n = 0;
-            Socket cl = null;
             if(n == JFileChooser.APPROVE_OPTION){
                 
                 File [] f = jf.getSelectedFiles();
-                System.out.println("\n 1 "+ f[0]);
-                System.out.println("\n 2 "+ f[1]);
+                //Envio path
+                System.out.println("Enviando numero" );
+                opc.println(f.length);
+                opc.flush();
                 for(int i = 0; i < f.length; i++){
-                    cl = new Socket(dst,pto);
-                    //Envia_datos(f[i], cl);
+                    //cl = new Socket(dst,pto);
+                    Envia_datos(f[i], cl);
                 }
                 System.out.println("\n Se ha completado el envio");
                 cl.close();
-            }*/
+            }
         }catch(Exception e){
             e.printStackTrace();
         }

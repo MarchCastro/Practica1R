@@ -5,8 +5,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -20,6 +18,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
@@ -39,7 +39,6 @@ public class Cliente extends javax.swing.JFrame {
     private DataInputStream dis;
     private BufferedReader br;
     private PrintWriter pw;
-    private String[] namesFile;
     private JTree tree;
     private DefaultMutableTreeNode root;
     private DefaultTreeModel treeModel;
@@ -47,19 +46,21 @@ public class Cliente extends javax.swing.JFrame {
     private String archivoActual = "";
     private JFileChooser jfc;
     private String ruta;
+    private LinkedList<File> locales = new LinkedList<File>();
     
     private void enviaArchivo(File f){
         try {
+            Socket cl2 = new Socket("localhost" , 9001);
+            DataOutputStream dos = new DataOutputStream(cl2.getOutputStream());
+            DataInputStream dis = new DataInputStream(new FileInputStream(f.getAbsolutePath()));
             String nombre = f.getName();
             long tam = f.length();
-            System.out.println("Iniciando el envío del archivo " + nombre + "\n\n");
+            System.out.println("Conexión establecida... iniciando el envío del archivo " + nombre + "\n\n");
             long enviados = 0;
             int porcentaje = 0;
             int n = 0;
             byte[] b = new byte[1500];
-            dos = new DataOutputStream(cl.getOutputStream());
-            dis = new DataInputStream(new FileInputStream(f.getAbsolutePath()));
-            dos.writeUTF(nombre);
+            dos.writeUTF(getRutaRelativa(f));
             dos.flush();
             dos.writeLong(tam);
             dos.flush();
@@ -72,6 +73,8 @@ public class Cliente extends javax.swing.JFrame {
             }
             System.out.println("\nSe ha completado el envío");
             dos.close();
+            dis.close();
+            cl2.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -331,14 +334,18 @@ public class Cliente extends javax.swing.JFrame {
     }
 
     private void actualizaCarpeta(String[] rutasServidor) {
-        File[] locales = new File(ruta).listFiles();
+        for(File f: new File(ruta).listFiles()){
+            getTodosArchivos(f);
+        }
         if(rutasServidor.length < 1){ 
-            pw.println(locales.length);
+            pw.println(locales.size());
             pw.flush();
             for (File f : locales){
-                pw.println(getRutaRelativa(f));
-                pw.flush();
-                enviaArchivo(f);
+                try {
+                    enviaArchivo(f);
+                } catch (Exception ex) {
+                    Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }else{
             LinkedList<String> aEnviar = new LinkedList<>();
@@ -346,18 +353,23 @@ public class Cliente extends javax.swing.JFrame {
                 if(!estaEn(getRutaRelativa(f), rutasServidor))
                     aEnviar.add(getRutaRelativa(f));
             }
-            pw.print(aEnviar.size());
+            pw.println(aEnviar.size());
             pw.flush();
-            for (String aE : aEnviar) {
+            for(String aE : aEnviar) {
                 File f = new File(ruta + "\\" + aE);
-                enviaArchivo(f);
+                try{
+                    enviaArchivo(f);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
             }
         }
+        locales.clear();
     }
 
     private String getRutaRelativa(File f) {
         String r = f.getAbsolutePath();
-        return r.substring(ruta.length());
+        return r.substring(ruta.length() + 1);
     }
 
     private boolean estaEn(String rutaRelativa, String[] rutasServidor) {
@@ -366,5 +378,14 @@ public class Cliente extends javax.swing.JFrame {
                 return true;
         }
         return false;
+    }
+    
+    private void getTodosArchivos(File f){
+        if(f.isDirectory()){
+            for(File auxF : f.listFiles())
+                getTodosArchivos(auxF);
+        }else{
+            locales.add(f);
+        }
     }
 }

@@ -17,6 +17,9 @@ public class Servidor{
             System.out.println("Cliente conectado desde:"+cl.getInetAddress()+":"+cl.getPort());
                 
             BufferedReader br3 = new BufferedReader(new InputStreamReader(cl.getInputStream()));
+            DataInputStream dis = null;
+            DataOutputStream dos = null;
+
             String path = "";
             path = "Sincronizada";
             int tam = path.length();
@@ -29,37 +32,36 @@ public class Servidor{
             numero = br3.readLine();
             int numero1 = Integer.parseInt(numero);
             System.out.println("\n Recibiré: " + numero1);
-            DataInputStream dis = null;
-            String nombre = "";
-
+            int pto2 = 9001;
+            ServerSocket s2 = new ServerSocket(pto2);
             for(int i = 0; i < numero1; i++){
-                //System.out.println("\n Recibiré: " + numero1);
-                dis = new DataInputStream(cl.getInputStream());
-                String ruta = br3.readLine();
-                System.out.println(ruta);
-                String nombre1 = dis.readUTF();
-                long tam1 = dis.readLong();
-                System.out.println("Inicia recepción del archivo: " + nombre1 + " de tamaño " + tam1 + " desde " + cl.getInetAddress() + ":" + cl.getPort());
-                DataOutputStream dos = new DataOutputStream(new FileOutputStream(nombre1));
-                long recibidos = 0;
-                int n,porcentaje = 0;
-                
-                while(recibidos < tam){
-                    byte [] b = new byte[1500];
-                    n = dis.read(b);
-                    recibidos += n;
-                    dos.write(b,0,n);
-                    dos.flush();
-                    porcentaje = (int)((recibidos * 100)/tam);
-                    System.out.println("\r Recibido el " + porcentaje + "% del archivo");
-                }
-    
-                System.out.println("Archivo recibido");
+                 Socket cl2=  s2.accept();
+                 dis = new DataInputStream(cl2.getInputStream());
+                 String nombre1 = dis.readUTF();
+                 System.out.println("nombre1:" + nombre1);
+                 long tam1 = dis.readLong();
+                 System.out.println("Inicia recepción del archivo: " + nombre1 + " de tamaño " + tam1 + " desde " + cl.getInetAddress() + ":" + cl.getPort());
+                 dos = new DataOutputStream(new FileOutputStream("Sincronizada/"+ nombre1));
+                 long recibidos = 0;
+                 int n,porcentaje = 0;
+                 
+                 while(recibidos < tam1){
+                     byte [] b = new byte[1500];
+                     n = dis.read(b);
+                     recibidos += n;
+                     dos.write(b,0,n);
+                     dos.flush();
+                     porcentaje = (int)((recibidos * 100)/tam1);
+                     System.out.print("\rRecibido el " + porcentaje + "% del archivo");
+                 }
+                 System.out.println("\nArchivo recibido");
+                 dis.close();
+                 dos.close();
+                 cl2.close();
+                 
             }
-
-        }
-
-                  
+                s2.close();
+            }
         }catch(Exception e){
             e.printStackTrace();
         }
