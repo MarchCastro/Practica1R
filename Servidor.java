@@ -17,8 +17,11 @@ public class Servidor{
             System.out.println("Cliente conectado desde:"+cl.getInetAddress()+":"+cl.getPort());
                 
             BufferedReader br3 = new BufferedReader(new InputStreamReader(cl.getInputStream()));
+            DataInputStream dis = null;
+            DataOutputStream dos = null;
+
             String path = "";
-            path = br3.readLine();
+            path = "Sincronizada";
             int tam = path.length();
             System.out.println("\n La direccion es: " + path);
             buscaArchivo(path,cl);
@@ -29,15 +32,16 @@ public class Servidor{
             numero = br3.readLine();
             int numero1 = Integer.parseInt(numero);
             System.out.println("\n Recibiré: " + numero1);
-            
-            while(true){
-                 //System.out.println("\n Recibiré: " + numero1);
-                 DataInputStream dis = new DataInputStream(cl.getInputStream());
+            int pto2 = 9001;
+            ServerSocket s2 = new ServerSocket(pto2);
+            for(int i = 0; i < numero1; i++){
+                 Socket cl2=  s2.accept();
+                 dis = new DataInputStream(cl2.getInputStream());
                  String nombre1 = dis.readUTF();
+                 System.out.println("nombre1:" + nombre1);
                  long tam1 = dis.readLong();
                  System.out.println("Inicia recepción del archivo: " + nombre1 + " de tamaño " + tam1 + " desde " + cl.getInetAddress() + ":" + cl.getPort());
-                 
-                 DataOutputStream dos = new DataOutputStream(new FileOutputStream(nombre1));
+                 dos = new DataOutputStream(new FileOutputStream("Sincronizada/"+ nombre1));
                  long recibidos = 0;
                  int n,porcentaje = 0;
                  
@@ -48,14 +52,15 @@ public class Servidor{
                      dos.write(b,0,n);
                      dos.flush();
                      porcentaje = (int)((recibidos * 100)/tam1);
-                     System.out.println("\r Recibido el " + porcentaje + "% del archivo");
+                     System.out.print("\rRecibido el " + porcentaje + "% del archivo");
                  }
-     
-                 System.out.println("Archivo recibido");
-                 //dos.close();
-                 //dis.close();
+                 System.out.println("\nArchivo recibido");
+                 dis.close();
+                 dos.close();
+                 cl2.close();
+                 
             }
-               
+                s2.close();
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -81,7 +86,7 @@ public class Servidor{
                         }                  
                         else{
                             //System.out.println(carpetas[x].getName());
-                            String concatena = path + "/" + carpetas[x].getName();
+                            String concatena = path + "\\" + carpetas[x].getName();
                             path_ar.add(x,concatena);
                             
                         }               

@@ -3,11 +3,13 @@ import java.io.*;
 import javax.swing.JFileChooser; //Caja de dialogo donde selecciono el archivo que quiero
 import javax.swing.plaf.FileChooserUI;
 //Investigr como implementar la funcionalidad Drag & Drop
-public class Cliente{
+public class Envia_muchos{
     static JFileChooser jf;
-
     public static void Envia_datos(File f, Socket cl){
         try{
+            //DataOutputStream dos = null;
+            //DataInputStream dis = null;
+
             int porcentaje,n = 0;
             String path = f.getAbsolutePath();
             String nombre = f.getName();
@@ -35,52 +37,24 @@ public class Cliente{
             e.printStackTrace();
         }
     }
- 
+
     public static void main(String [] args){
         try{
-            int pto = 9000;
-            BufferedReader br1 = new BufferedReader(new InputStreamReader(System.in));
-            //System.out.print("\n Escribe la dirección del servidor: ");
-            String dir = "127.0.0.1";
-            //System.out.print("\n Escribe la dirección de la carpeta: ");
-            String path = "/home/march/Music";
-
-            Socket cl = new Socket(dir, pto);
-            //Envio path
-            PrintWriter opc = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
-            opc.println(path);
-            opc.flush();
-
-            //Recibo numero de archivos
-            BufferedReader br3 = new BufferedReader(new InputStreamReader(cl.getInputStream()));
-            String numero = "";
-            numero = br3.readLine();
-            int numero1 = Integer.parseInt(numero);
-            System.out.println("\n Hay: " + numero1);
-
-            
-            String nombre = "";
-            for(int i = 0; i < numero1; i++){
-                nombre = br3.readLine();
-                System.out.println("Archivo: " + nombre );
-            }
-
-            
-            //Envia archivos          
+            String dst = "127.0.0.1";
+            int pto = 7000;
             jf = new JFileChooser();
             jf.setMultiSelectionEnabled(true);
             
             int r = jf.showOpenDialog(null);
             int n = 0;
+            Socket cl = null;
             if(n == JFileChooser.APPROVE_OPTION){
                 
                 File [] f = jf.getSelectedFiles();
-                //Envio path
-                System.out.println("Enviando numero" );
-                opc.println(f.length);
-                opc.flush();
+                System.out.println("\n 1 "+ f[0]);
+                System.out.println("\n 2 "+ f[1]);
                 for(int i = 0; i < f.length; i++){
-                    //cl = new Socket(dst,pto);
+                    cl = new Socket(dst,pto);
                     Envia_datos(f[i], cl);
                 }
                 System.out.println("\n Se ha completado el envio");
