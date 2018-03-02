@@ -62,7 +62,7 @@ public class Cliente{
             String nombre = "";
             for(int i = 0; i < numero1; i++){
                 nombre = br3.readLine();
-                System.out.println("Archivo: " + nombre );
+                System.out.println(nombre);
             }
 
             
