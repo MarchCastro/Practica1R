@@ -2,6 +2,7 @@ import java.net.*;
 import java.io.*;
 import javax.swing.JFileChooser; //Caja de dialogo donde selecciono el archivo que quiero
 import javax.swing.plaf.FileChooserUI;
+import java.util.*;
 //Investigr como implementar la funcionalidad Drag & Drop
 public class Cliente{
     static JFileChooser jf;
@@ -43,10 +44,10 @@ public class Cliente{
             //System.out.print("\n Escribe la dirección del servidor: ");
             String dir = "127.0.0.1";
             //System.out.print("\n Escribe la dirección de la carpeta: ");
-            String path = "/home/march/Music";
+            String path = "/home/marce/Music";
 
             Socket cl = new Socket(dir, pto);
-            //Envio path
+    /*        //Envio path
             PrintWriter opc = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
             opc.println(path);
             opc.flush();
@@ -86,6 +87,66 @@ public class Cliente{
                 System.out.println("\n Se ha completado el envio");
                 cl.close();
             }
+    */
+            //Envia opcion
+            PrintWriter opc = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
+            BufferedReader x = null;
+            while(true){
+                String opcion1 = "";
+                System.out.print("Por favor selecciona una opción: ");
+                x = new BufferedReader(new InputStreamReader(System.in));
+                opcion1 = x.readLine();
+                
+                if(opcion1.compareTo("1") == 0){
+                    System.out.print("Envío de archivos");
+                    //Envio opcion elegida por usuario
+                    PrintWriter x1 = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
+                    x1.println(opcion1);
+                    x1.flush();
+
+                    //Envia archivos          
+                    jf = new JFileChooser();
+                    jf.setMultiSelectionEnabled(true);
+                    
+                    int r = jf.showOpenDialog(null);
+                    int n = 0;
+                    if(n == JFileChooser.APPROVE_OPTION){
+                        
+                        File [] f = jf.getSelectedFiles();
+                        //Envio path
+                        //System.out.println("Enviando numero" + f.length );
+                        opc.println(f.length);
+                        opc.flush();
+                        for(int i = 0; i < f.length; i++){
+                            int pto1 = 9001;
+                            String dir1 = "127.0.0.1";
+                            Socket cl1 = new Socket(dir1, pto1);
+                            //System.out.println("\n cl1 " + cl1);    
+                            //Socket cl1 = new Socket("127.0.0.1",9001);
+                            Envia_datos(f[i], cl1);
+                            cl1.close();
+                        }
+                        System.out.println("\n Se ha completado el envio");
+                        cl.close();
+                    }
+                    //System.out.println("TERMINA" );
+
+                } else if(opcion1.compareTo("2") == 0){
+                    System.out.println("Eliminar archivos");
+                    //Envio opcion elegida por usuario
+                    PrintWriter x1 = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
+                    x1.println(opcion1);
+                    x1.flush();
+                    //Envia path
+                    String path_borra = "/home/marce/Music/Prueba1/Prueba/Hola/a.txt";
+                    //PrintWriter opc2 = new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
+                    x1.println(path_borra);
+                    x1.flush();
+                    System.out.println("Envíe: " + path_borra);
+                   
+                }
+            }
+            
         }catch(Exception e){
             e.printStackTrace();
         }
