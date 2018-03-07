@@ -48,7 +48,7 @@ public class Cliente extends javax.swing.JFrame {
     private String ruta;
     private LinkedList<File> locales = new LinkedList<File>();
     
-    private void enviaArchivo(File f){
+    private void enviaArchivo(File f, boolean ext){
         try {
             Socket cl2 = new Socket("localhost" , 9001);
             DataOutputStream dos = new DataOutputStream(cl2.getOutputStream());
@@ -60,7 +60,10 @@ public class Cliente extends javax.swing.JFrame {
             int porcentaje = 0;
             int n = 0;
             byte[] b = new byte[1500];
-            dos.writeUTF(getRutaRelativa(f));
+            if(!ext)
+                dos.writeUTF(getRutaRelativa(f));
+            else
+                dos.writeUTF(carpetaActual + "\\" + getRutaRelativaExt(f));
             dos.flush();
             dos.writeLong(tam);
             dos.flush();
@@ -148,8 +151,6 @@ public class Cliente extends javax.swing.JFrame {
             System.out.println(carpetaActual);
             System.out.println(nombre);
             DefaultMutableTreeNode auxN = (DefaultMutableTreeNode) auxTP.getLastPathComponent();
-            File f = new File(archivoActual);
-            String nomb = f.getName();
             String carpeta = (ruta + carpetaActual).split(Pattern.quote("\\"))[(ruta + carpetaActual).split(Pattern.quote("\\")).length - 1];
             tp = find(root, carpeta);
             node = (DefaultMutableTreeNode) tp.getLastPathComponent();
@@ -195,6 +196,7 @@ public class Cliente extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -219,28 +221,39 @@ public class Cliente extends javax.swing.JFrame {
 
         jLabel2.setText("Carpeta seleccionada: ");
 
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/clientedropbox/logo.png"))); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(21, 21, 21)
+                .addContainerGap(24, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 523, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
-                .addContainerGap(23, Short.MAX_VALUE))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jButton1)))
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addGap(20, 20, 20))
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel2)
+                            .addGap(54, 54, 54)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(178, 178, 178))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(70, 70, 70)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel2)
@@ -269,25 +282,36 @@ public class Cliente extends javax.swing.JFrame {
     return null;
 }
     
+    String carpetaExt = "";
+    
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         jfc = new JFileChooser();
         jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         int r = jfc.showOpenDialog(null);
         if(r == jfc.APPROVE_OPTION){
             File f = jfc.getSelectedFile();
+            carpetaExt = f.getName();
             System.out.println(f.getAbsolutePath());
-            try {
-                Path from= Paths.get(f.getAbsolutePath());
-                Path to = Paths.get(ruta + carpetaActual + "\\" + f.getName());
-                //Reemplazamos el fichero si ya existe
-                CopyOption[] options = new CopyOption[]{
-                  StandardCopyOption.REPLACE_EXISTING,
-                  StandardCopyOption.COPY_ATTRIBUTES
-                };
-                Files.copy(from, to, options);
-                actualizaArbol(f.getName(), true);
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            copiaArchivos(f, ruta + carpetaActual);
+            actualizaArbol();
+            pw.println("1");
+            pw.flush();
+            locales.clear();
+            if(f.isDirectory()){
+                for(File fx: f.listFiles()){
+                    getTodosArchivos(fx);
+                }
+            }else{
+                locales.add(f);
+            }
+            pw.println(locales.size());
+            pw.flush();
+            for (File fx : locales){
+                try {
+                    enviaArchivo(fx, true);
+                } catch (Exception ex) {
+                    Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -298,6 +322,7 @@ public class Cliente extends javax.swing.JFrame {
             int conf = JOptionPane.showConfirmDialog(null, "¿Estás seguro que deseas eliminar el archivo " + archivoActual + "?", "Eliminar archivo", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             if(conf == JOptionPane.YES_OPTION){
                 File f = new File(archivoActual);
+                String rutaR = getRutaRelativa(f);
                 if(f.isDirectory()){
                     File[] files = f.listFiles();
                     vaciaCarpeta(f);
@@ -307,8 +332,13 @@ public class Cliente extends javax.swing.JFrame {
                         carpetaActual += "\\" + auxS[i];
                     }
                 }
-                if(f.delete())
+                if(f.delete()){
                     actualizaArbol(f.getName(), false);
+                    pw.println("2");
+                    pw.flush();
+                    pw.println(rutaR);
+                    pw.flush();
+                }
                 else
                     System.out.println("NO SE BORRÓ!");
             }
@@ -321,6 +351,7 @@ public class Cliente extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 
@@ -342,7 +373,7 @@ public class Cliente extends javax.swing.JFrame {
             pw.flush();
             for (File f : locales){
                 try {
-                    enviaArchivo(f);
+                    enviaArchivo(f, false);
                 } catch (Exception ex) {
                     Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -358,7 +389,7 @@ public class Cliente extends javax.swing.JFrame {
             for(String aE : aEnviar) {
                 File f = new File(ruta + "\\" + aE);
                 try{
-                    enviaArchivo(f);
+                    enviaArchivo(f, false);
                 }catch(Exception e){
                     e.printStackTrace();
                 }
@@ -370,6 +401,12 @@ public class Cliente extends javax.swing.JFrame {
     private String getRutaRelativa(File f) {
         String r = f.getAbsolutePath();
         return r.substring(ruta.length() + 1);
+    }
+    
+    private String getRutaRelativaExt(File f){
+        int i = f.getAbsolutePath().indexOf(carpetaExt);
+        System.out.println(f.getAbsolutePath().substring(i));
+        return f.getAbsolutePath().substring(i);
     }
 
     private boolean estaEn(String rutaRelativa, String[] rutasServidor) {
@@ -386,6 +423,43 @@ public class Cliente extends javax.swing.JFrame {
                 getTodosArchivos(auxF);
         }else{
             locales.add(f);
+        }
+    }
+    
+    Stack<File> pila = new Stack<File>();
+
+    private void copiaArchivos(File f, String destino) {
+        Path p = Paths.get(destino + "\\" + f.getName());
+        
+        try {
+            if(f.isDirectory()){
+                Files.createDirectory(p);
+                File[] d = f.listFiles();
+                for(File fd : d){
+                    copiaArchivos(fd, destino + "\\" + f.getName());
+                }   
+            }else{
+                Path from = Paths.get(f.getAbsolutePath());
+                //Reemplazamos el fichero si ya existe
+                CopyOption[] options = new CopyOption[]{
+                  StandardCopyOption.REPLACE_EXISTING,
+                  StandardCopyOption.COPY_ATTRIBUTES
+                };
+                Files.copy(from, p, options);
+            }
+            pila.push(f);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void actualizaArbol() {
+        while(!pila.isEmpty()){
+            File f = (File) pila.pop();
+            actualizaArbol(f.getName(), true);
+            if(f.isDirectory()){
+                carpetaActual += "\\" + f.getName();
+            }
         }
     }
 }

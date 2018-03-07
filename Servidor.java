@@ -35,33 +35,8 @@ public class Servidor{
             System.out.println("\n Recibiré: " + numero1);
             int pto2 = 9001;
             ServerSocket s2 = new ServerSocket(pto2);
-            for(int i = 0; i < numero1; i++){
-                 Socket cl2=  s2.accept();
-                 dis = new DataInputStream(cl2.getInputStream());
-                 String nombre1 = dis.readUTF();
-                 System.out.println("nombre1:" + nombre1);
-                 long tam1 = dis.readLong();
-                 System.out.println("Inicia recepción del archivo: " + nombre1 + " de tamaño " + tam1 + " desde " + cl.getInetAddress() + ":" + cl.getPort());
-                 dos = new DataOutputStream(new FileOutputStream("Sincronizada/"+ nombre1));
-                 long recibidos = 0;
-                 int n,porcentaje = 0;
-                 
-                 while(recibidos < tam1){
-                     byte [] b = new byte[1500];
-                     n = dis.read(b);
-                     recibidos += n;
-                     dos.write(b,0,n);
-                     dos.flush();
-                     porcentaje = (int)((recibidos * 100)/tam1);
-                     System.out.print("\rRecibido el " + porcentaje + "% del archivo");
-                 }
-                 System.out.println("\nArchivo recibido");
-                 dis.close();
-                 dos.close();
-                 cl2.close();
-                 
-            }
-                s2.close();
+            creaCarpeta(numero1,cl,s2);
+            s2.close();
             
         
                 //Menu para agregar o eliminar archivo
@@ -101,7 +76,7 @@ public class Servidor{
         try {
             //BufferedReader br3 = new BufferedReader(new InputStreamReader(cl.getInputStream()));
             String path = "";
-            String path1 = "/home/marce/Documents/Redes/P1/Practica1R/Prueba/";
+            String path1 = "Sincronizada\\";
             String path_completa = "";
             DataInputStream dis = null;
             DataOutputStream dos = null;
@@ -113,8 +88,7 @@ public class Servidor{
                 dis = new DataInputStream(cl2.getInputStream());
                 path = dis.readUTF();
                 //Carpeta creada de prueba
-                String prueba = "Hola/";
-                path_completa = path1+prueba+path;
+                path_completa = path1+path;
                 
                 //Creo variable con el path y creo carpetas
                 File f = new File(path_completa);
@@ -151,8 +125,8 @@ public class Servidor{
 
     public static void eliminarCarpeta(Socket cl, String path){
         try {
-            System.out.println("Entre a eliminar la carpeta" + path);
-            File directorio = new File(path);
+            System.out.println("Entre a eliminar la carpeta " + path);
+            File directorio = new File("Sincronizada/" + path);
             //Llamo a borrar las carpetas
             borrarCarpeta(directorio);
             //Verifico si se elimino
