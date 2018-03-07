@@ -19,7 +19,7 @@ public class Servidor{
             BufferedReader br3 = new BufferedReader(new InputStreamReader(cl.getInputStream()));
             DataInputStream dis = null;
             DataOutputStream dos = null;
-
+            /*
             String path = "";
             path = "Sincronizada";
             int tam = path.length();
@@ -63,7 +63,7 @@ public class Servidor{
             }
                 s2.close();
             
-        
+        */
                 //Menu para agregar o eliminar archivo
                 //NUEVO PUERTO
                 ServerSocket s3 = new ServerSocket(9001);
