@@ -63,7 +63,7 @@ public class Cliente extends javax.swing.JFrame {
             if(!ext)
                 dos.writeUTF(getRutaRelativa(f));
             else
-                dos.writeUTF(carpetaActual + "\\" + getRutaRelativaExt(f));
+                dos.writeUTF(getRutaRelativaExt(f));
             dos.flush();
             dos.writeLong(tam);
             dos.flush();
